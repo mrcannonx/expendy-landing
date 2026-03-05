@@ -4,462 +4,743 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expendy — Voice-Powered Expense Tracker</title>
-    <meta name="description" content="Track expenses effortlessly with your voice. Say it, save it, see where your money goes.">
-    <meta name="theme-color" content="#10B981">
+    <meta name="description" content="Just speak to track your spending. Say 'coffee five dollars' and it's logged instantly with AI-powered categories.">
+    <meta name="theme-color" content="#00E599">
     <link rel="icon" type="image/png" href="/icon.png">
-    <meta property="og:title" content="Expendy — Voice-Powered Expense Tracker">
-    <meta property="og:description" content="Just speak to track your spending. AI-powered categories, beautiful insights, budget tracking.">
+    <meta property="og:title" content="Expendy — Track Expenses With Your Voice">
+    <meta property="og:description" content="Zero typing. Zero forms. Just speak naturally and Expendy logs it instantly with AI categories.">
     <meta property="og:image" content="/icon.png">
     <meta property="og:type" content="website">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{
+            --emerald:#00E599;
+            --amber:#FFB547;
+            --bg:#0A0D14;
+            --surface:#13171F;
+            --border:#1E2530;
+            --text:#F0F2F5;
+            --muted:#8B95A5;
+            --danger:#FF5A5A;
+        }
+        body{
+            font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',system-ui,sans-serif;
+            background:var(--bg);
+            color:var(--text);
+            line-height:1.6;
+            overflow-x:hidden;
+            -webkit-font-smoothing:antialiased;
+        }
+        .container{max-width:1080px;margin:0 auto;padding:0 24px}
 
-        :root {
-            --primary: #10B981;
-            --accent: #3B82F6;
-            --bg: #0B0F1A;
-            --card: #141925;
-            --card-border: #1E2637;
-            --text: #F1F5F9;
-            --text-muted: #94A3B8;
-            --gradient: linear-gradient(135deg, #10B981, #3B82F6);
+        /* ── Nav ── */
+        #mainNav{
+            position:fixed;top:0;left:0;right:0;z-index:100;
+            padding:18px 0;
+            background:rgba(10,13,20,0.8);
+            backdrop-filter:blur(20px);
+            -webkit-backdrop-filter:blur(20px);
+            border-bottom:1px solid transparent;
+            transition:all 0.3s ease;
         }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-            overflow-x: hidden;
+        #mainNav.scrolled{
+            padding:12px 0;
+            border-bottom-color:var(--border);
         }
-
-        /* Ambient glow */
-        .glow {
-            position: fixed;
-            width: 600px;
-            height: 600px;
-            border-radius: 50%;
-            filter: blur(120px);
-            opacity: 0.15;
-            pointer-events: none;
-            z-index: 0;
+        #mainNav .container{
+            display:flex;align-items:center;justify-content:space-between;
         }
-        .glow-1 { background: var(--primary); top: -200px; left: -100px; }
-        .glow-2 { background: var(--accent); top: 40%; right: -200px; }
-        .glow-3 { background: var(--primary); bottom: -100px; left: 30%; opacity: 0.1; }
-
-        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
-
-        /* Nav */
-        nav {
-            padding: 20px 0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        .nav-brand{
+            display:flex;align-items:center;gap:10px;
+            font-size:20px;font-weight:700;letter-spacing:-0.5px;
+            text-decoration:none;color:var(--text);
         }
-        .nav-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 22px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
+        .nav-brand img{width:36px;height:36px;border-radius:9px}
+        .nav-links{display:flex;align-items:center;gap:28px}
+        .nav-links a{
+            color:var(--muted);text-decoration:none;font-size:14px;
+            font-weight:500;transition:color 0.2s;
         }
-        .nav-brand img {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
+        .nav-links a:hover{color:var(--text)}
+        .nav-cta{
+            background:var(--emerald);color:#0A0D14;
+            padding:9px 20px;border-radius:8px;font-size:13px;
+            font-weight:700;text-decoration:none;
+            letter-spacing:0.01em;transition:all 0.2s;
         }
-        .nav-cta {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--gradient);
-            color: white;
-            padding: 10px 22px;
-            border-radius: 100px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 14px;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .nav-cta:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.3);
+        .nav-cta:hover{
+            transform:translateY(-1px);
+            box-shadow:0 6px 24px rgba(0,229,153,0.25);
         }
 
-        /* Hero */
-        .hero {
-            text-align: center;
-            padding: 80px 0 60px;
+        /* ── Hero ── */
+        .hero{
+            padding:140px 0 80px;
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:60px;
+            align-items:center;
         }
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            padding: 8px 18px;
-            border-radius: 100px;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 32px;
+        .hero-content{max-width:500px}
+        .hero-badge{
+            display:inline-flex;align-items:center;gap:6px;
+            background:rgba(255,181,71,0.08);
+            border:1px solid rgba(255,181,71,0.15);
+            padding:6px 14px;border-radius:100px;
+            font-size:12px;font-weight:600;color:var(--amber);
+            letter-spacing:0.02em;margin-bottom:24px;
         }
-        .hero h1 {
-            font-size: clamp(40px, 6vw, 72px);
-            font-weight: 900;
-            letter-spacing: -2px;
-            line-height: 1.05;
-            margin-bottom: 20px;
+        .hero h1{
+            font-size:clamp(36px,5vw,56px);
+            font-weight:800;line-height:1.08;
+            letter-spacing:-0.03em;margin-bottom:20px;
         }
-        .hero h1 .gradient-text {
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .hero h1 .accent{color:var(--emerald)}
+        .hero-sub{
+            font-size:17px;color:var(--muted);
+            line-height:1.7;margin-bottom:32px;
+            letter-spacing:-0.01em;
         }
-        .hero p {
-            font-size: 18px;
-            color: var(--text-muted);
-            max-width: 540px;
-            margin: 0 auto 40px;
-            line-height: 1.7;
+        .hero-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+        .btn-primary{
+            display:inline-flex;align-items:center;gap:8px;
+            background:var(--emerald);color:#0A0D14;
+            padding:14px 28px;border-radius:12px;
+            font-weight:700;font-size:15px;
+            text-decoration:none;border:none;cursor:pointer;
+            transition:all 0.2s;letter-spacing:-0.01em;
         }
-        .hero-actions {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-            flex-wrap: wrap;
+        .btn-primary:hover{
+            transform:translateY(-2px);
+            box-shadow:0 10px 36px rgba(0,229,153,0.3);
         }
-        .btn-primary {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: var(--gradient);
-            color: white;
-            padding: 16px 32px;
-            border-radius: 14px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 16px;
-            transition: all 0.2s;
-            border: none;
-            cursor: pointer;
+        .btn-primary svg{width:18px;height:18px}
+        .btn-secondary{
+            display:inline-flex;align-items:center;gap:6px;
+            color:var(--muted);font-size:14px;font-weight:500;
+            text-decoration:none;transition:color 0.2s;
         }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 40px rgba(16, 185, 129, 0.35);
-        }
-        .btn-primary svg { width: 20px; height: 20px; }
+        .btn-secondary:hover{color:var(--text)}
 
-        /* App Icon Hero */
-        .hero-icon {
-            margin: 60px auto 0;
-            width: 180px;
-            height: 180px;
-            border-radius: 40px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(16, 185, 129, 0.3), 0 0 0 1px rgba(255,255,255,0.05);
+        /* ── Voice Demo (Hero Right) ── */
+        .hero-visual{position:relative;display:flex;justify-content:center}
+        .phone-frame{
+            width:280px;
+            background:var(--surface);
+            border-radius:36px;
+            border:2px solid var(--border);
+            padding:16px;
+            position:relative;
+            box-shadow:0 40px 80px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.03);
         }
-        .hero-icon img { width: 100%; height: 100%; object-fit: cover; }
-
-        /* Features */
-        .features {
-            padding: 80px 0;
+        .phone-notch{
+            width:120px;height:28px;
+            background:var(--bg);
+            border-radius:0 0 16px 16px;
+            margin:0 auto 16px;
         }
-        .section-label {
-            text-align: center;
-            font-size: 13px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            color: var(--primary);
-            margin-bottom: 16px;
+        .phone-screen{
+            background:var(--bg);
+            border-radius:20px;
+            padding:20px 16px;
+            min-height:380px;
         }
-        .section-title {
-            text-align: center;
-            font-size: clamp(28px, 4vw, 42px);
-            font-weight: 800;
-            letter-spacing: -1px;
-            margin-bottom: 56px;
+        .phone-screen .ps-header{
+            font-size:11px;color:var(--muted);
+            text-transform:uppercase;letter-spacing:0.08em;
+            font-weight:600;margin-bottom:12px;
         }
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+        .phone-screen .ps-amount{
+            font-size:36px;font-weight:800;
+            letter-spacing:-0.03em;margin-bottom:4px;
         }
-        .feature-card {
-            background: var(--card);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            padding: 28px;
-            transition: transform 0.2s, border-color 0.2s;
-        }
-        .feature-card:hover {
-            transform: translateY(-4px);
-            border-color: rgba(16, 185, 129, 0.3);
-        }
-        .feature-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            margin-bottom: 16px;
-        }
-        .feature-card h3 {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-        .feature-card p {
-            font-size: 14px;
-            color: var(--text-muted);
-            line-height: 1.6;
-        }
-        .fi-voice { background: rgba(16, 185, 129, 0.12); }
-        .fi-ai { background: rgba(59, 130, 246, 0.12); }
-        .fi-chart { background: rgba(168, 85, 247, 0.12); }
-        .fi-budget { background: rgba(245, 158, 11, 0.12); }
-        .fi-recurring { background: rgba(236, 72, 153, 0.12); }
-        .fi-export { background: rgba(20, 184, 166, 0.12); }
-
-        /* How It Works */
-        .how-it-works {
-            padding: 80px 0;
-        }
-        .steps {
-            display: flex;
-            gap: 40px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 48px;
-        }
-        .step {
-            text-align: center;
-            flex: 1;
-            min-width: 220px;
-            max-width: 300px;
-        }
-        .step-number {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: var(--gradient);
-            color: white;
-            font-size: 22px;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-        }
-        .step h3 {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-        .step p {
-            font-size: 14px;
-            color: var(--text-muted);
+        .phone-screen .ps-amount span{color:var(--emerald)}
+        .phone-screen .ps-label{
+            font-size:13px;color:var(--muted);margin-bottom:20px;
         }
 
-        /* CTA */
-        .cta {
-            padding: 80px 0;
-            text-align: center;
+        /* Voice waveform */
+        .waveform-area{
+            background:rgba(255,181,71,0.06);
+            border:1px solid rgba(255,181,71,0.12);
+            border-radius:14px;
+            padding:16px;
+            margin-bottom:16px;
+            text-align:center;
         }
-        .cta-card {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(59, 130, 246, 0.08));
-            border: 1px solid rgba(16, 185, 129, 0.15);
-            border-radius: 24px;
-            padding: 60px 40px;
+        .waveform-bars{
+            display:flex;align-items:center;justify-content:center;
+            gap:3px;height:40px;margin-bottom:10px;
         }
-        .cta-card h2 {
-            font-size: clamp(28px, 4vw, 38px);
-            font-weight: 800;
-            letter-spacing: -1px;
-            margin-bottom: 16px;
+        .waveform-bars span{
+            display:block;width:4px;border-radius:2px;
+            background:var(--amber);
+            animation:wave 1.2s ease-in-out infinite;
         }
-        .cta-card p {
-            font-size: 16px;
-            color: var(--text-muted);
-            margin-bottom: 32px;
+        .waveform-bars span:nth-child(1){height:12px;animation-delay:0s}
+        .waveform-bars span:nth-child(2){height:24px;animation-delay:0.1s}
+        .waveform-bars span:nth-child(3){height:36px;animation-delay:0.2s}
+        .waveform-bars span:nth-child(4){height:20px;animation-delay:0.3s}
+        .waveform-bars span:nth-child(5){height:32px;animation-delay:0.15s}
+        .waveform-bars span:nth-child(6){height:16px;animation-delay:0.25s}
+        .waveform-bars span:nth-child(7){height:28px;animation-delay:0.05s}
+        .waveform-bars span:nth-child(8){height:10px;animation-delay:0.35s}
+        .waveform-bars span:nth-child(9){height:22px;animation-delay:0.2s}
+        @keyframes wave{
+            0%,100%{transform:scaleY(1)}
+            50%{transform:scaleY(0.4)}
         }
-
-        /* Footer */
-        footer {
-            padding: 40px 0;
-            border-top: 1px solid var(--card-border);
-            text-align: center;
-        }
-        footer p {
-            font-size: 13px;
-            color: var(--text-muted);
-        }
-        footer a {
-            color: var(--text-muted);
-            text-decoration: none;
-            margin: 0 12px;
-            transition: color 0.2s;
-        }
-        footer a:hover { color: var(--primary); }
-
-        /* Privacy & Support Pages */
-        .page-content {
-            padding: 60px 0;
-            max-width: 680px;
-            margin: 0 auto;
-        }
-        .page-content h1 {
-            font-size: 36px;
-            font-weight: 800;
-            margin-bottom: 32px;
-        }
-        .page-content h2 {
-            font-size: 22px;
-            font-weight: 700;
-            margin-top: 32px;
-            margin-bottom: 12px;
-        }
-        .page-content p, .page-content li {
-            color: var(--text-muted);
-            line-height: 1.8;
-            margin-bottom: 16px;
+        .waveform-text{
+            font-size:12px;color:var(--amber);font-weight:600;
+            letter-spacing:0.02em;
         }
 
-        @media (max-width: 640px) {
-            .hero { padding: 40px 0; }
-            .features-grid { grid-template-columns: 1fr; }
-            .steps { flex-direction: column; align-items: center; }
-            .hero-icon { width: 120px; height: 120px; border-radius: 28px; }
+        /* Speech bubble */
+        .speech-bubble{
+            background:var(--surface);
+            border:1px solid var(--border);
+            border-radius:12px 12px 12px 4px;
+            padding:10px 14px;
+            display:inline-flex;align-items:center;gap:8px;
+            margin-bottom:12px;
+        }
+        .speech-bubble .mic-dot{
+            width:8px;height:8px;border-radius:50%;
+            background:var(--amber);
+            animation:pulse-dot 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse-dot{
+            0%,100%{opacity:1;transform:scale(1)}
+            50%{opacity:0.5;transform:scale(0.8)}
+        }
+        .speech-bubble p{
+            font-size:13px;font-weight:500;color:var(--text);
+        }
+
+        /* Expense logged result */
+        .expense-logged{
+            background:rgba(0,229,153,0.06);
+            border:1px solid rgba(0,229,153,0.12);
+            border-radius:12px;
+            padding:12px 14px;
+            display:flex;align-items:center;justify-content:space-between;
+        }
+        .expense-logged .el-left{display:flex;align-items:center;gap:10px}
+        .expense-logged .el-icon{
+            width:32px;height:32px;border-radius:8px;
+            background:rgba(0,229,153,0.12);
+            display:flex;align-items:center;justify-content:center;
+            font-size:14px;
+        }
+        .expense-logged .el-name{font-size:13px;font-weight:600}
+        .expense-logged .el-cat{font-size:11px;color:var(--muted)}
+        .expense-logged .el-amount{
+            font-size:14px;font-weight:700;color:var(--emerald);
+        }
+
+        /* ── Social Proof Bar ── */
+        .proof-bar{
+            padding:48px 0;
+            border-top:1px solid var(--border);
+            border-bottom:1px solid var(--border);
+        }
+        .proof-bar .container{
+            display:flex;justify-content:center;gap:48px;flex-wrap:wrap;
+        }
+        .proof-item{text-align:center}
+        .proof-item .pi-value{
+            font-size:28px;font-weight:800;
+            letter-spacing:-0.03em;
+        }
+        .proof-item .pi-value.emerald{color:var(--emerald)}
+        .proof-item .pi-value.amber{color:var(--amber)}
+        .proof-item .pi-label{
+            font-size:13px;color:var(--muted);margin-top:4px;
+            letter-spacing:-0.01em;
+        }
+        .proof-divider{
+            width:1px;background:var(--border);align-self:stretch;
+        }
+
+        /* ── Section Shared ── */
+        .section-label{
+            text-align:center;font-size:12px;font-weight:700;
+            text-transform:uppercase;letter-spacing:0.08em;
+            color:var(--emerald);margin-bottom:12px;
+        }
+        .section-title{
+            text-align:center;font-size:clamp(26px,4vw,40px);
+            font-weight:800;letter-spacing:-0.02em;
+            margin-bottom:16px;
+        }
+        .section-sub{
+            text-align:center;font-size:16px;color:var(--muted);
+            max-width:520px;margin:0 auto 48px;line-height:1.7;
+        }
+
+        /* ── Features Grid ── */
+        .features{padding:80px 0}
+        .features-grid{
+            display:grid;
+            grid-template-columns:repeat(3,1fr);
+            gap:16px;
+        }
+        .feature-card{
+            background:var(--surface);
+            border:1px solid var(--border);
+            border-radius:14px;
+            padding:24px;
+            transition:all 0.25s ease;
+        }
+        .feature-card:hover{
+            transform:translateY(-3px);
+            border-color:rgba(0,229,153,0.2);
+            box-shadow:0 8px 32px rgba(0,0,0,0.3);
+        }
+        .fc-icon{
+            width:44px;height:44px;border-radius:11px;
+            display:flex;align-items:center;justify-content:center;
+            margin-bottom:16px;
+        }
+        .fc-icon svg{width:22px;height:22px}
+        .fc-icon.voice{background:rgba(255,181,71,0.1)}
+        .fc-icon.voice svg{color:var(--amber)}
+        .fc-icon.ai{background:rgba(0,229,153,0.1)}
+        .fc-icon.ai svg{color:var(--emerald)}
+        .fc-icon.chart{background:rgba(139,116,255,0.1)}
+        .fc-icon.chart svg{color:#8B74FF}
+        .fc-icon.budget{background:rgba(0,229,153,0.1)}
+        .fc-icon.budget svg{color:var(--emerald)}
+        .fc-icon.recurring{background:rgba(255,181,71,0.1)}
+        .fc-icon.recurring svg{color:var(--amber)}
+        .fc-icon.export{background:rgba(96,165,250,0.1)}
+        .fc-icon.export svg{color:#60A5FA}
+        .feature-card h3{
+            font-size:16px;font-weight:700;margin-bottom:6px;
+            letter-spacing:-0.01em;
+        }
+        .feature-card p{
+            font-size:14px;color:var(--muted);line-height:1.6;
+        }
+
+        /* ── How It Works ── */
+        .how-it-works{padding:80px 0}
+        .steps{
+            display:flex;gap:24px;justify-content:center;
+            position:relative;margin-top:48px;
+        }
+        .steps::before{
+            content:'';position:absolute;top:28px;
+            left:calc(16.66% + 28px);right:calc(16.66% + 28px);
+            height:2px;background:var(--border);
+        }
+        .step{
+            flex:1;max-width:280px;text-align:center;
+            position:relative;
+        }
+        .step-num{
+            width:56px;height:56px;border-radius:50%;
+            background:var(--surface);border:2px solid var(--border);
+            display:flex;align-items:center;justify-content:center;
+            margin:0 auto 18px;font-size:20px;font-weight:800;
+            color:var(--emerald);position:relative;z-index:1;
+        }
+        .step h3{font-size:16px;font-weight:700;margin-bottom:6px}
+        .step p{font-size:14px;color:var(--muted);line-height:1.5}
+
+        /* ── Testimonials ── */
+        .testimonials{padding:80px 0}
+        .testimonials-grid{
+            display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+        }
+        .testimonial-card{
+            background:var(--surface);
+            border:1px solid var(--border);
+            border-radius:14px;
+            padding:24px;
+        }
+        .tc-stars{color:var(--amber);font-size:14px;margin-bottom:12px;letter-spacing:2px}
+        .tc-quote{
+            font-size:14px;color:var(--muted);
+            line-height:1.7;margin-bottom:16px;
+            font-style:italic;
+        }
+        .tc-author{display:flex;align-items:center;gap:10px}
+        .tc-avatar{
+            width:32px;height:32px;border-radius:50%;
+            background:rgba(0,229,153,0.12);
+            display:flex;align-items:center;justify-content:center;
+            font-size:13px;font-weight:700;color:var(--emerald);
+        }
+        .tc-name{font-size:13px;font-weight:600}
+        .tc-handle{font-size:12px;color:var(--muted)}
+
+        /* ── CTA ── */
+        .cta{padding:80px 0;text-align:center}
+        .cta-box{
+            background:var(--surface);
+            border:1px solid var(--border);
+            border-radius:20px;
+            padding:56px 40px;
+            position:relative;overflow:hidden;
+        }
+        .cta-box::before{
+            content:'';position:absolute;top:0;left:0;right:0;
+            height:3px;
+            background:linear-gradient(90deg,var(--emerald),var(--amber));
+        }
+        .cta-box h2{
+            font-size:clamp(26px,4vw,36px);
+            font-weight:800;letter-spacing:-0.02em;
+            margin-bottom:12px;
+        }
+        .cta-box p{
+            font-size:16px;color:var(--muted);margin-bottom:28px;
+        }
+        .cta-trust{
+            display:flex;justify-content:center;gap:24px;
+            margin-top:20px;flex-wrap:wrap;
+        }
+        .cta-trust span{
+            display:flex;align-items:center;gap:6px;
+            font-size:13px;color:var(--muted);
+        }
+        .cta-trust svg{width:14px;height:14px;color:var(--emerald)}
+
+        /* ── Footer ── */
+        footer{
+            padding:40px 0;
+            border-top:1px solid var(--border);
+        }
+        footer .container{
+            display:flex;justify-content:space-between;
+            align-items:center;flex-wrap:wrap;gap:16px;
+        }
+        footer p{font-size:13px;color:var(--muted)}
+        footer nav a{
+            color:var(--muted);text-decoration:none;
+            font-size:13px;margin-left:20px;transition:color 0.2s;
+        }
+        footer nav a:hover{color:var(--text)}
+
+        /* ── Scroll Reveal ── */
+        .reveal{
+            opacity:0;transform:translateY(20px);
+            transition:opacity 0.6s ease,transform 0.6s ease;
+        }
+        .reveal.visible{opacity:1;transform:translateY(0)}
+
+        /* ── Responsive ── */
+        @media(max-width:768px){
+            .hero{
+                grid-template-columns:1fr;
+                text-align:center;padding:120px 0 60px;
+                gap:40px;
+            }
+            .hero-content{max-width:100%}
+            .hero-actions{justify-content:center}
+            .features-grid{grid-template-columns:1fr}
+            .testimonials-grid{grid-template-columns:1fr}
+            .steps{flex-direction:column;align-items:center}
+            .steps::before{display:none}
+            .proof-bar .container{gap:32px}
+            .proof-divider{display:none}
+            .nav-links{display:none}
+            .phone-frame{width:240px}
+            footer .container{flex-direction:column;text-align:center}
+            footer nav a{margin:0 10px}
+        }
+        @media(max-width:480px){
+            .features-grid{gap:12px}
+            .phone-frame{width:220px}
         }
     </style>
 </head>
 <body>
-    <div class="glow glow-1"></div>
-    <div class="glow glow-2"></div>
-    <div class="glow glow-3"></div>
 
+<!-- Nav -->
+<header id="mainNav">
     <div class="container">
-        <nav>
-            <div class="nav-brand">
-                <img src="/icon.png" alt="Expendy" />
-                Expendy
-            </div>
-            <a href="#download" class="nav-cta">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-                Download
-            </a>
-        </nav>
-
-        <!-- Hero -->
-        <section class="hero">
-            <div class="hero-badge">
-                ✨ Available on the App Store
-            </div>
-            <h1>
-                Track spending<br>
-                <span class="gradient-text">with your voice</span>
-            </h1>
-            <p>
-                Say it, save it, see where your money goes. Expendy uses AI to instantly categorize your expenses from natural speech.
-            </p>
-            <div class="hero-actions">
-                <a href="#download" class="btn-primary">
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-                    Download for iOS
-                </a>
-            </div>
-            <div class="hero-icon">
-                <img src="/icon.png" alt="Expendy App Icon" />
-            </div>
-        </section>
-
-        <!-- Features -->
-        <section class="features">
-            <div class="section-label">Features</div>
-            <h2 class="section-title">Everything you need to<br>master your spending</h2>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon fi-voice">🎙️</div>
-                    <h3>Voice-First Tracking</h3>
-                    <p>Just say "coffee five dollars" and it's logged. No typing, no forms. Natural speech recognition that understands how you talk about money.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon fi-ai">🧠</div>
-                    <h3>AI Smart Categories</h3>
-                    <p>Our AI automatically sorts your spending into 12 categories. Food, transport, shopping, entertainment — it learns your habits.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon fi-chart">📊</div>
-                    <h3>Beautiful Insights</h3>
-                    <p>Visual charts and donut breakdowns show exactly where your money goes. Weekly and monthly trends at a glance.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon fi-budget">💰</div>
-                    <h3>Budget Tracking</h3>
-                    <p>Set monthly spending limits and watch your progress in real time. Stay on track with visual budget indicators.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon fi-recurring">🔄</div>
-                    <h3>Recurring Expenses</h3>
-                    <p>Set up bills, subscriptions, and regular payments once. They auto-log on schedule so you never forget.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon fi-export">📤</div>
-                    <h3>CSV Export</h3>
-                    <p>Download all your expense data anytime as a clean CSV file. Your data, your way. Perfect for tax prep or budgeting spreadsheets.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- How It Works -->
-        <section class="how-it-works">
-            <div class="section-label">How It Works</div>
-            <h2 class="section-title">Three seconds to track</h2>
-            <div class="steps">
-                <div class="step">
-                    <div class="step-number">1</div>
-                    <h3>Tap the mic</h3>
-                    <p>Hit the voice button from anywhere in the app</p>
-                </div>
-                <div class="step">
-                    <div class="step-number">2</div>
-                    <h3>Speak naturally</h3>
-                    <p>"Lunch twelve dollars" or "Uber to airport twenty-five"</p>
-                </div>
-                <div class="step">
-                    <div class="step-number">3</div>
-                    <h3>Done</h3>
-                    <p>AI categorizes it instantly. See it in your insights.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- CTA -->
-        <section class="cta" id="download">
-            <div class="cta-card">
-                <h2>Start tracking smarter</h2>
-                <p>Free to download. Pro features available with a free trial.</p>
-                <a href="#" class="btn-primary">
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-                    Download for iOS
-                </a>
-            </div>
-        </section>
-
-        <!-- Footer -->
-        <footer>
-            <p>
-                <a href="/privacy">Privacy Policy</a>
-                <a href="/support">Support</a>
-            </p>
-            <p style="margin-top: 12px;">&copy; 2026 PLAYRIOT LLC. All rights reserved.</p>
-        </footer>
+        <a href="/" class="nav-brand">
+            <img src="/icon.png" alt="Expendy">
+            Expendy
+        </a>
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#how-it-works">How It Works</a>
+            <a href="#reviews">Reviews</a>
+            <a href="#download" class="nav-cta">Download</a>
+        </div>
     </div>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+    <div class="hero-content">
+        <div class="hero-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+            Voice-first expense tracking
+        </div>
+        <h1>Speak it.<br><span class="accent">Track it.</span></h1>
+        <p class="hero-sub">
+            Say "coffee five dollars" and it's logged instantly. Expendy uses AI to categorize your spending from natural speech. Zero typing. Zero forms.
+        </p>
+        <div class="hero-actions">
+            <a href="#download" class="btn-primary">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                Download for iOS
+            </a>
+            <a href="#how-it-works" class="btn-secondary">
+                See how it works
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </a>
+        </div>
+    </div>
+    <div class="hero-visual">
+        <div class="phone-frame">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+                <div class="ps-header">Today's spending</div>
+                <div class="ps-amount"><span>$</span>47<span>.20</span></div>
+                <div class="ps-label">3 expenses logged</div>
+
+                <div class="waveform-area">
+                    <div class="waveform-bars">
+                        <span></span><span></span><span></span>
+                        <span></span><span></span><span></span>
+                        <span></span><span></span><span></span>
+                    </div>
+                    <div class="waveform-text">Listening...</div>
+                </div>
+
+                <div class="speech-bubble">
+                    <div class="mic-dot"></div>
+                    <p>"Coffee five forty"</p>
+                </div>
+
+                <div class="expense-logged">
+                    <div class="el-left">
+                        <div class="el-icon">&#9749;</div>
+                        <div>
+                            <div class="el-name">Coffee</div>
+                            <div class="el-cat">Food &amp; Drink</div>
+                        </div>
+                    </div>
+                    <div class="el-amount">-$5.40</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Social Proof Bar -->
+<section class="proof-bar reveal">
+    <div class="container">
+        <div class="proof-item">
+            <div class="pi-value emerald">3 sec</div>
+            <div class="pi-label">Average time to log</div>
+        </div>
+        <div class="proof-divider"></div>
+        <div class="proof-item">
+            <div class="pi-value amber">12</div>
+            <div class="pi-label">Auto-categories by AI</div>
+        </div>
+        <div class="proof-divider"></div>
+        <div class="proof-item">
+            <div class="pi-value emerald">100%</div>
+            <div class="pi-label">Private &amp; on-device</div>
+        </div>
+        <div class="proof-divider"></div>
+        <div class="proof-item">
+            <div class="pi-value">&#9733; 4.8</div>
+            <div class="pi-label">App Store rating</div>
+        </div>
+    </div>
+</section>
+
+<!-- Features -->
+<section class="features reveal" id="features">
+    <div class="container">
+        <div class="section-label">Features</div>
+        <h2 class="section-title">Everything to master your spending</h2>
+        <p class="section-sub">No bank connections. No complex setup. Just speak and see where your money goes.</p>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="fc-icon voice">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+                </div>
+                <h3>Voice-First Logging</h3>
+                <p>Just speak naturally. "Lunch twelve dollars" or "Uber to work twenty-five." No typing, no forms, no friction.</p>
+            </div>
+            <div class="feature-card">
+                <div class="fc-icon ai">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                </div>
+                <h3>AI Smart Categories</h3>
+                <p>Expendy auto-sorts spending into 12 categories: food, transport, shopping, entertainment, and more. It learns your habits.</p>
+            </div>
+            <div class="feature-card">
+                <div class="fc-icon chart">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                </div>
+                <h3>Visual Insights</h3>
+                <p>Donut charts and breakdowns show exactly where your money goes. Weekly and monthly trends at a glance.</p>
+            </div>
+            <div class="feature-card">
+                <div class="fc-icon budget">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </div>
+                <h3>Budget Tracking</h3>
+                <p>Set monthly limits and watch your progress in real time. Visual indicators keep you on track before you overspend.</p>
+            </div>
+            <div class="feature-card">
+                <div class="fc-icon recurring">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                </div>
+                <h3>Recurring Expenses</h3>
+                <p>Set up bills and subscriptions once. They auto-log on schedule so you never miss a recurring charge.</p>
+            </div>
+            <div class="feature-card">
+                <div class="fc-icon export">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                </div>
+                <h3>CSV Export</h3>
+                <p>Download all your expense data as a clean CSV anytime. Your data, your way. Perfect for tax prep.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="how-it-works reveal" id="how-it-works">
+    <div class="container">
+        <div class="section-label">How It Works</div>
+        <h2 class="section-title">Three seconds. That's it.</h2>
+        <p class="section-sub">No menus, no dropdowns, no amount pickers. Voice is the fastest input.</p>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <h3>Tap the mic</h3>
+                <p>One tap from the home screen opens the voice recorder</p>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <h3>Speak naturally</h3>
+                <p>"Lunch twelve dollars" or "Uber to airport twenty-five"</p>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <h3>Done</h3>
+                <p>AI categorizes it instantly. See it in your insights right away.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="testimonials reveal" id="reviews">
+    <div class="container">
+        <div class="section-label">Reviews</div>
+        <h2 class="section-title">People love the simplicity</h2>
+        <p class="section-sub">Join thousands who stopped overthinking their expense tracking.</p>
+        <div class="testimonials-grid">
+            <div class="testimonial-card">
+                <div class="tc-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                <p class="tc-quote">"I tried 5 expense apps before this. The voice feature is a game changer. I actually stick with it because it takes zero effort."</p>
+                <div class="tc-author">
+                    <div class="tc-avatar">M</div>
+                    <div>
+                        <div class="tc-name">Mike R.</div>
+                        <div class="tc-handle">App Store Review</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="tc-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                <p class="tc-quote">"Finally! An expense tracker that doesn't require me to open a form every time. Just talk and done. The AI categories are surprisingly accurate."</p>
+                <div class="tc-author">
+                    <div class="tc-avatar">S</div>
+                    <div>
+                        <div class="tc-name">Sarah L.</div>
+                        <div class="tc-handle">App Store Review</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="tc-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                <p class="tc-quote">"The insights page is beautiful. I had no idea how much I was spending on food until Expendy broke it down. Best budgeting tool I've used."</p>
+                <div class="tc-author">
+                    <div class="tc-avatar">J</div>
+                    <div>
+                        <div class="tc-name">James K.</div>
+                        <div class="tc-handle">App Store Review</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta reveal" id="download">
+    <div class="container">
+        <div class="cta-box">
+            <h2>Start tracking smarter today</h2>
+            <p>Free to download. Pro features with a 3-day free trial.</p>
+            <a href="#" class="btn-primary" style="display:inline-flex">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                Download for iOS
+            </a>
+            <div class="cta-trust">
+                <span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    Free to start
+                </span>
+                <span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    No bank login needed
+                </span>
+                <span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    Cancel anytime
+                </span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <p>&copy; 2026 PLAYRIOT LLC</p>
+        <nav>
+            <a href="/privacy">Privacy</a>
+            <a href="/support">Support</a>
+        </nav>
+    </div>
+</footer>
+
+<script>
+// Scroll reveal
+const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible') });
+}, {threshold: 0.1});
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// Nav scroll
+const nav = document.getElementById('mainNav');
+window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 40);
+});
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+        e.preventDefault();
+        const t = document.querySelector(a.getAttribute('href'));
+        if(t) t.scrollIntoView({behavior:'smooth',block:'start'});
+    });
+});
+</script>
 </body>
 </html>
